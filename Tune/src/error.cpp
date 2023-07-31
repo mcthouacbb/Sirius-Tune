@@ -24,7 +24,7 @@ ErrorThread::ErrorThread()
 
 }
 
-ErrorThread::Result ErrorThread::process(const std::span<const Pos>& positions, const EvalParams& params, double kValue)
+ErrorThread::Result ErrorThread::process(const std::span<const Position>& positions, const EvalParams& params, double kValue)
 {
 	{
 		std::lock_guard lg(m_Mutex);
@@ -60,7 +60,7 @@ void ErrorThread::wait()
 		if (m_Quit)
 			return;
 
-		m_Result = error(m_Positions, m_Params, m_kValue);
+		m_Result = errorRaw(m_Positions, m_Params, m_kValue);
 
 		m_Finished = true;
 		m_IsReady = false;
@@ -70,55 +70,36 @@ void ErrorThread::wait()
 	}
 }
 
-double error(const std::span<const Pos>& positions, const EvalParams& params, double kValue)
+double errorRaw(const std::span<const Position>& positions, const EvalParams& params, double kValue)
 {
-	if (isDegenerate(params))
-		return 1000000.0;
 	double result = 0.0;
-	Board board;
-	EvalCache cache = genCache(params);
 
-	int maxNodes = 0;
-	int totalNodes = 0;
 	std::string_view maxEpd;
 	for (const auto& pos : positions)
 	{
-		board.setToFen(std::string_view(pos.epd, pos.epdLen));
 		int nodes = 0;
-		int eval = evaluate(board, params, cache);
-		totalNodes += nodes;
-		if (nodes > maxNodes)
-		{
-			maxNodes = nodes;
-			maxEpd = std::string_view(pos.epd, pos.epdLen);
-		}
+		int eval = evaluate(pos, params);
 		double term = pos.result - sigmoid(eval, kValue);
 		// std::cout << term << std::endl;
 
 		result += term * term;
 	}
-	//std::cout << maxNodes << std::endl;
-	//std::cout << maxEpd << std::endl;
-	//std::cout << totalNodes << std::endl;
-	//std::cout << result << std::endl;
-	//std::cout << positions.size() << std::endl;
-	//result /= static_cast<double>(positions.size());
 	return result;
 }
 
-double error(const std::vector<Pos>& positions, const EvalParams& params, double kValue, std::vector<ErrorThread>& threads)
+double error(const std::vector<Position>& positions, const EvalParams& params, double kValue, std::vector<ErrorThread>& threads)
 {
 	std::vector<ErrorThread::Result> results;
 	results.reserve(threads.size());
 	const int BLOCK_COUNT = static_cast<int>(threads.size() + 1);
 	for (uint32_t i = 0; i < threads.size(); i++)
 	{
-		std::span<const Pos> threadPositions(positions.data() + positions.size() * (i + 1) / BLOCK_COUNT, positions.data() + positions.size() * (i + 2) / BLOCK_COUNT);
+		std::span<const Position> threadPositions(positions.data() + positions.size() * (i + 1) / BLOCK_COUNT, positions.data() + positions.size() * (i + 2) / BLOCK_COUNT);
 		results.push_back(threads[i].process(threadPositions, params, kValue));
 	}
 
-	std::span<const Pos> mainThreadPositions(positions.data(), positions.data() + positions.size() / BLOCK_COUNT);
-	double result = error(mainThreadPositions, params, kValue);
+	std::span<const Position> mainThreadPositions(positions.data(), positions.data() + positions.size() / BLOCK_COUNT);
+	double result = errorRaw(mainThreadPositions, params, kValue);
 	for (auto& errorResult : results)
 	{
 		result += errorResult.waitForResult();

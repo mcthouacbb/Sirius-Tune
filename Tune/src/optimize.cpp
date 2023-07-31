@@ -17,7 +17,7 @@ int deltaOrders[5][4] = {
 	{5, -5, 1, -1}
 };
 
-double computeKValue(std::vector<ErrorThread>& threads, const EvalParams& initial, const std::vector<Pos>& positions)
+double computeKValue(std::vector<ErrorThread>& threads, const EvalParams& initial, const std::vector<Position>& positions)
 {
 	constexpr double delta = 1e-5;
 	constexpr double deviationGoal = 1e-6;
@@ -37,7 +37,7 @@ double computeKValue(std::vector<ErrorThread>& threads, const EvalParams& initia
 	return kValue;
 }
 
-EvalParams localSearch(std::vector<ErrorThread>& threads, double kValue, const EvalParams& initial, const std::vector<Pos>& positions, std::ofstream& outFile)
+EvalParams localSearch(std::vector<ErrorThread>& threads, double kValue, const EvalParams& initial, const std::vector<Position>& positions, std::ofstream& outFile)
 {
 	double bestError = error(positions, initial, kValue, threads);
 	EvalParams bestParams = initial;
@@ -84,7 +84,7 @@ EvalParams localSearch(std::vector<ErrorThread>& threads, double kValue, const E
 	return bestParams;
 }
 
-void normalize(const EvalParams& params)
+/*void normalize(const EvalParams& params)
 {
 	EvalParams paramsCopy = params;
 	EvalData& data = paramsCopy.data;
@@ -210,4 +210,4 @@ void normalizeBytes(EvalParams params)
 	}
 
 	printParams(params, std::cout);
-}
+}*/

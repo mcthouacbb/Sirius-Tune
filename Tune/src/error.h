@@ -29,7 +29,7 @@ public:
 		ErrorThread* m_Thread;
 	};
 
-	Result process(const std::span<const Pos>& positions, const EvalParams& params, double kValue);
+	Result process(const std::span<const Position>& positions, const EvalParams& params, double kValue);
 	void quit();
 private:
 	void wait();
@@ -43,11 +43,11 @@ private:
 	bool m_Finished;
 	double m_Result;
 
-	std::span<const Pos> m_Positions;
+	std::span<const Position> m_Positions;
 	EvalParams m_Params;
 	double m_kValue;
 	std::jthread m_Thread;
 };
 
-double error(const std::span<const Pos>& positions, const EvalParams& params, double kValue);
-double error(const std::vector<Pos>& positions, const EvalParams& params, double kValue, std::vector<ErrorThread>& threads);
+double errorRaw(const std::span<const Position>& positions, const EvalParams& params, double kValue);
+double error(const std::vector<Position>& positions, const EvalParams& params, double kValue, std::vector<ErrorThread>& threads);

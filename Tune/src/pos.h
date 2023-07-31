@@ -3,11 +3,20 @@
 #include <vector>
 #include <string>
 
-struct Pos
+struct EpdPos
 {
 	const char* epd;
 	int epdLen;
 	double result;
 };
 
-std::vector<Pos> parseEpdFile(const std::string& str);
+struct Position
+{
+	int psqtIndices[2][16];
+	int psqtCount[2];
+	int phase;
+	double result;
+};
+
+std::vector<EpdPos> parseEpdFile(const std::string& str);
+std::vector<Position> getPositions(const std::vector<EpdPos>& epds);
