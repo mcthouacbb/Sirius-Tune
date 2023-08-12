@@ -5,6 +5,8 @@ set(SRCS
 	"src/error.h"
 	"src/eval_params.h"
 	"src/eval_params.cpp"
+	"src/extract.cpp"
+	"src/extract.h"
 	"src/main.cpp"
 	"src/optimize.cpp"
 	"src/optimize.h"

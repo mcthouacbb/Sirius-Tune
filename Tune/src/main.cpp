@@ -2,6 +2,7 @@
 
 #include "pos.h"
 #include "optimize.h"
+#include "extract.h"
 
 #include <iostream>
 #include <fstream>
@@ -128,6 +129,8 @@ constexpr int NUM_THREADS = 3;
 int main()
 {
 	printParams(defaultParams, std::cout);
+
+	extractMaterial(defaultParams);
 
 	std::vector<ErrorThread> threadPool(NUM_THREADS);
 
