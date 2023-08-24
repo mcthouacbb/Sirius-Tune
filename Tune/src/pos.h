@@ -12,9 +12,8 @@ struct EpdPos
 
 struct Position
 {
-	int psqtIndices[2][16];
-	int psqtCount[2];
-	int phase;
+    int pieceCounts[2][6];
+    int stmMoveCount;
 	double result;
 };
 

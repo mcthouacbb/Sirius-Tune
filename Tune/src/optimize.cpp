@@ -23,7 +23,7 @@ double computeKValue(std::vector<ErrorThread>& threads, const EvalParams& initia
 	constexpr double deviationGoal = 1e-6;
 	double deviation = 1;
 
-	double kValue = 4.74887;
+	double kValue = 3.68058;
 
 	while (std::fabs(deviation) > deviationGoal)
 	{

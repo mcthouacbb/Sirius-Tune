@@ -1,6 +1,6 @@
 #include "extract.h"
 
-void extractMaterial(const EvalParams& params)
+/*void extractMaterial(const EvalParams& params)
 {
     int material[2][6] = {};
     for (int pce = 1; pce < 6; pce++)
@@ -39,4 +39,4 @@ void extractMaterial(const EvalParams& params)
     }
 
     printParams(EvalParams(data), std::cout);
-}
+}*/

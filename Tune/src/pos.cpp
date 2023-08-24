@@ -98,7 +98,6 @@ std::vector<Position> getPositions(const std::vector<EpdPos>& epds)
 	{
 		board.setFen(std::string(epd.epd, epd.epdLen));
 		Position pos = {};
-		pos.phase = 24;
 		pos.result = epd.result;
 
 		for (int sq = 0; sq < 64; sq++)
@@ -110,11 +109,15 @@ std::vector<Position> getPositions(const std::vector<EpdPos>& epds)
 
 			chess::PieceType type = chess::utils::typeOfPiece(pce);
 			chess::Color color = chess::Board::color(pce);
-            
-			pos.phase -= getPhase(type);
-			int psqtIdx = pos.psqtCount[getColorNum(color)]++;
-			pos.psqtIndices[getColorNum(color)][psqtIdx] = 64 * getPieceNum(type) - 64 + (sq ^ (color == chess::Color::WHITE ? 0b111000 : 0));
+
+            pos.pieceCounts[getColorNum(color)][getPieceNum(type) - 1]++;
 		}
+
+        chess::Movelist moveList;
+        chess::movegen::legalmoves(moveList, board);
+        pos.stmMoveCount = moveList.size();
+        if (board.sideToMove() == chess::Color::BLACK)
+            pos.stmMoveCount *= -1;
 
 		positions.push_back(pos);
 	}

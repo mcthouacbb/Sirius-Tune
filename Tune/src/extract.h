@@ -1,3 +1,3 @@
 #include "eval_params.h"
 
-void extractMaterial(const EvalParams& params);
+// void extractMaterial(const EvalParams& params);

@@ -6,8 +6,8 @@
 
 struct EvalData
 {
-    int psqtMG[6 * 64];
-    int psqtEG[6 * 64];
+    int material[6];
+    int moveCount;
 };
 
 constexpr size_t NUM_PARAMS = sizeof(EvalData) / sizeof(int);
