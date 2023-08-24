@@ -143,16 +143,17 @@ int main()
     std::ifstream in(inFile);
     std::ofstream out(outFile);
 
-    in.seekg(0, std::ios::end);
-    size_t size = in.tellg();
-    std::string epdString(size, '\0');
-    in.seekg(0);
-    in.read(epdString.data(), size);
 
 	std::vector<Position> positions;
     {
+        in.seekg(0, std::ios::end);
+        size_t size = in.tellg();
+        std::string epdString(size, '\0');
+        in.seekg(0);
+        in.read(epdString.data(), size);
+
         std::vector<EpdPos> epds = parseEpdFile(epdString);
-        positions = getPositions(epds)
+        positions = getPositions(epds);
     }
 
     double kValue = computeKValue(threadPool, defaultParams, positions);
