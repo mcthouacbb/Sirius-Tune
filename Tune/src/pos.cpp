@@ -1,5 +1,5 @@
 #include "pos.h"
-#include "board.h"
+#include "chess.hpp"
 
 #include <stdexcept>
 
@@ -47,42 +47,73 @@ std::vector<EpdPos> parseEpdFile(const std::string& str)
 	return positions;
 }
 
-inline int getPhase(PieceType pce)
+inline int getPhase(chess::PieceType pce)
 {
-	if (pce == PieceType::QUEEN)
+	if (pce == chess::PieceType::QUEEN)
 		return 4;
-	else if (pce == PieceType::ROOK)
+	else if (pce == chess::PieceType::ROOK)
 		return 2;
-	else if (pce == PieceType::KNIGHT || pce == PieceType::BISHOP)
+	else if (pce == chess::PieceType::KNIGHT || pce == chess::PieceType::BISHOP)
 		return 1;
 	return 0;
+}
+
+namespace
+{
+    int getPieceNum(chess::PieceType pieceType)
+    {
+        switch (pieceType)
+        {
+            case chess::PieceType::PAWN:
+                return 6;
+            case chess::PieceType::KNIGHT:
+                return 5;
+            case chess::PieceType::BISHOP:
+                return 4;
+            case chess::PieceType::ROOK:
+                return 3;
+            case chess::PieceType::QUEEN:
+                return 2;
+            case chess::PieceType::KING:
+                return 1;
+        }
+        return -1;
+    }
+
+    int getColorNum(chess::Color color)
+    {
+        if (color == chess::Color::WHITE)
+            return 0;
+        else
+            return 1;
+    }
 }
 
 std::vector<Position> getPositions(const std::vector<EpdPos>& epds)
 {
 	std::vector<Position> positions;
 
-	Board board;
+	chess::Board board;
 	for (const auto& epd : epds)
 	{
-		board.setToEpd(std::string_view(epd.epd, epd.epdLen));
+		board.setFen(std::string(epd.epd, epd.epdLen));
 		Position pos = {};
 		pos.phase = 24;
 		pos.result = epd.result;
 
 		for (int sq = 0; sq < 64; sq++)
 		{
-			Piece pce = board.getPieceAt(sq);
+			chess::Piece pce = board.at(static_cast<chess::Square>(sq));
 
-			if (pce == PIECE_NONE)
+			if (pce == chess::Piece::NONE)
 				continue;
 
-			PieceType type = getPieceType(pce);
-			int color = static_cast<int>(getPieceColor(pce));
-
+			chess::PieceType type = chess::utils::typeOfPiece(pce);
+			chess::Color color = chess::Board::color(pce);
+            
 			pos.phase -= getPhase(type);
-			int psqtIdx = pos.psqtCount[color]++;
-			pos.psqtIndices[color][psqtIdx] = 64 * static_cast<int>(type) - 64 + (sq ^ (color == static_cast<int>(Color::WHITE) ? 0b111000 : 0));
+			int psqtIdx = pos.psqtCount[getColorNum(color)]++;
+			pos.psqtIndices[getColorNum(color)][psqtIdx] = 64 * getPieceNum(type) - 64 + (sq ^ (color == chess::Color::WHITE ? 0b111000 : 0));
 		}
 
 		positions.push_back(pos);

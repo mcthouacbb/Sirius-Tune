@@ -1,6 +1,4 @@
 set(SRCS
-	"src/board.cpp"
-	"src/board.h"
 	"src/error.cpp"
 	"src/error.h"
 	"src/eval_params.h"
@@ -17,6 +15,7 @@ set(SRCS
 add_executable(tune ${SRCS})
 
 target_compile_features(tune PRIVATE cxx_std_20)
+target_include_directories(tune PRIVATE "vendor")
 
 # for Visual Studio/MSVC
 set_target_properties(tune PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
