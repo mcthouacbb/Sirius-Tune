@@ -149,8 +149,11 @@ int main()
     in.seekg(0);
     in.read(epdString.data(), size);
 
-    std::vector<EpdPos> epds = parseEpdFile(epdString);
-	std::vector<Position> positions = getPositions(epds);
+	std::vector<Position> positions;
+    {
+        std::vector<EpdPos> epds = parseEpdFile(epdString);
+        positions = getPositions(epds)
+    }
 
     double kValue = computeKValue(threadPool, defaultParams, positions);
     std::cout << "Final kValue: " << kValue;
