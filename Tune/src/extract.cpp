@@ -7,14 +7,16 @@ void extractMaterial(const EvalParams& params)
     {
         int mgAvg = 0;
         int egAvg = 0;
-        for (int sq = 0; sq < 64; sq++)
+	int startSquare = pce == 5 ? 24 : 0;
+	int endSquare = pce == 5 ? 56 : 64;
+        for (int sq = startSquare; sq < endSquare; sq++)
         {
             mgAvg += params.data.psqtMG[pce * 64 + sq];
             egAvg += params.data.psqtEG[pce * 64 + sq];
         }
 
-        material[0][pce] = mgAvg / (pce == 5 ? 48 : 64);
-        material[1][pce] = egAvg / (pce == 5 ? 48 : 64);
+        material[0][pce] = mgAvg / (endSquare - startSquare);
+        material[1][pce] = egAvg / (endSquare - startSquare);
     }
 
     for (int i = 0; i < 2; i++)
