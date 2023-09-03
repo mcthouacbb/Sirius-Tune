@@ -10,11 +10,14 @@ set(SRCS
 	"src/optimize.h"
 	"src/pos.cpp"
 	"src/pos.h"
+
+	"vendor/uint128_t/uint128_t.cpp"
 )
 
 add_executable(tune ${SRCS})
 
 target_compile_features(tune PRIVATE cxx_std_20)
+
 target_include_directories(tune PRIVATE "vendor")
 
 # for Visual Studio/MSVC
