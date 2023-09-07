@@ -14,6 +14,8 @@ struct Position
 {
 	int psqtIndices[2][16];
 	int psqtCount[2];
+    bool hasBishopPair[2];
+    bool isWtm;
 	int phase;
 	double result;
 };

@@ -91,6 +91,7 @@ namespace
 
 std::vector<Position> getPositions(const std::vector<EpdPos>& epds)
 {
+    using chess::builtin::popcount;
 	std::vector<Position> positions;
 
 	chess::Board board;
@@ -115,6 +116,13 @@ std::vector<Position> getPositions(const std::vector<EpdPos>& epds)
 			int psqtIdx = pos.psqtCount[getColorNum(color)]++;
 			pos.psqtIndices[getColorNum(color)][psqtIdx] = 64 * getPieceNum(type) - 64 + (sq ^ (color == chess::Color::WHITE ? 0b111000 : 0));
 		}
+
+        if (popcount(board.pieces(chess::PieceType::BISHOP, chess::Color::WHITE)))
+            pos.hasBishopPair[0] = true;
+        if (popcount(board.pieces(chess::PieceType::BISHOP, chess::Color::BLACK)))
+            pos.hasBishopPair[1] = true;
+
+        pos.isWtm = board.sideToMove() == chess::Color::WHITE;
 
 		positions.push_back(pos);
 	}
