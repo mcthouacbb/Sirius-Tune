@@ -17,13 +17,11 @@ int deltaOrders[5][4] = {
 	{5, -5, 1, -1}
 };
 
-double computeKValue(std::vector<ErrorThread>& threads, const EvalParams& initial, const std::vector<Position>& positions)
+double computeKValue(double kValue, std::vector<ErrorThread>& threads, const EvalParams& initial, const std::vector<Position>& positions)
 {
 	constexpr double delta = 1e-5;
 	constexpr double deviationGoal = 1e-6;
 	double deviation = 1;
-
-	double kValue = 4.74887;
 
 	while (std::fabs(deviation) > deviationGoal)
 	{

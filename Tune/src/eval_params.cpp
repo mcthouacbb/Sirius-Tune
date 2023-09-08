@@ -58,25 +58,38 @@ void printParams(const EvalParams& params, std::ostream& os)
         os << "\t\t},\n";
     }
     os << "\t},\n";
+    os << "\t{" << data.tempoMG << ", " << data.tempoEG << "}\n";
+    os << "\t{" << data.bishopPairMG << ", " << data.bishopPairEG << "}\n";
     os << "}";
     os << std::endl;
 }
 
 int evaluate(const Position& position, const EvalParams& params)
 {
-    constexpr int FLIP_Y = 0b111000;
+    constexpr int WHITE = 0;
     const EvalData& data = params.data;
-    int psqtMG[2] = {};
-    int psqtEG[2] = {};
+    int evalMG[2] = {};
+    int evalEG[2] = {};
 
     for (int col = 0; col < 2; col++)
     {
         for (int i = 0; i < position.psqtCount[col]; i++)
         {
-            psqtMG[col] += params.data.psqtMG[position.psqtIndices[col][i]];
-            psqtEG[col] += params.data.psqtEG[position.psqtIndices[col][i]];
+            evalMG[col] += params.data.psqtMG[position.psqtIndices[col][i]];
+            evalEG[col] += params.data.psqtEG[position.psqtIndices[col][i]];
+        }
+
+        if (position.hasBishopPair[col])
+        {
+            evalMG[col] += params.data.bishopPairMG;
+            evalEG[col] += params.data.bishopPairEG;
         }
     }
 
-    return ((psqtMG[0] - psqtMG[1]) * (24 - position.phase) + (psqtEG[0] - psqtEG[1]) * position.phase) / 24;
+    int mg = evalMG[0] - evalMG[1];
+    int eg = evalEG[0] - evalEG[1];
+    mg += position.isWtm ? data.tempoMG : -data.tempoMG;
+    eg += position.isWtm ? data.tempoEG : -data.tempoEG;
+    
+    return (mg * (24 - position.phase) + eg * position.phase) / 24;
 }

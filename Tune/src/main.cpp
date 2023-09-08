@@ -121,10 +121,13 @@ EvalParams defaultParams = {
 			 113,  104,  108,  104,  104,   98,   96,   93, 
 			  94,   94,   94,   94,   94,   94,   94,   94, 
 		},
+        0, 0,
+        0, 0
 	}
 };
 
 constexpr int NUM_THREADS = 3;
+constexpr double K_VALUE = 3.81492;
 
 int main()
 {
@@ -158,8 +161,9 @@ int main()
         positions = getPositions(epds);
     }
 
-    double kValue = computeKValue(threadPool, defaultParams, positions);
-    std::cout << "Final kValue: " << kValue;
+    // double kValue = computeKValue(K_VALUE, threadPool, defaultParams, positions);
+    double kValue = K_VALUE;
+    std::cout << "Final kValue: " << kValue << std::endl;
 
     localSearch(threadPool, kValue, defaultParams, positions, out);
 }
