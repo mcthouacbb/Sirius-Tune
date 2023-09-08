@@ -94,6 +94,9 @@ std::vector<Position> getPositions(const std::vector<EpdPos>& epds)
     using chess::builtin::popcount;
 	std::vector<Position> positions;
 
+	constexpr uint64_t LIGHT_SQUARES = 0x55AA55AA55AA55AAull;
+	constexpr uint64_t DARK_SQUARES = 0xAA55AA55AA55AA55ull;
+
 	chess::Board board;
 	for (const auto& epd : epds)
 	{
@@ -117,9 +120,12 @@ std::vector<Position> getPositions(const std::vector<EpdPos>& epds)
 			pos.psqtIndices[getColorNum(color)][psqtIdx] = 64 * getPieceNum(type) - 64 + (sq ^ (color == chess::Color::WHITE ? 0b111000 : 0));
 		}
 
-        if (popcount(board.pieces(chess::PieceType::BISHOP, chess::Color::WHITE)))
+	
+        uint64_t whiteBishops = board.pieces(chess::PieceType::BISHOP, chess::Color::WHITE);
+	uint64_t blackBishops = board.pieces(chess::PieceType::BISHOP, chess::Color::BLACK);
+	if ((whiteBishops & LIGHT_SQUARES) != 0 && (whiteBishops & DARK_SQUARES) != 0)
             pos.hasBishopPair[0] = true;
-        if (popcount(board.pieces(chess::PieceType::BISHOP, chess::Color::BLACK)))
+        if ((blackBishops & LIGHT_SQUARES) != 0 && (blackBishops & DARK_SQUARES) != 0)
             pos.hasBishopPair[1] = true;
 
         pos.isWtm = board.sideToMove() == chess::Color::WHITE;
