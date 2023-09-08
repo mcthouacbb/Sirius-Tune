@@ -7,8 +7,8 @@ void extractMaterial(const EvalParams& params)
     {
         int mgAvg = 0;
         int egAvg = 0;
-	int startSquare = pce == 5 ? 24 : 0;
-	int endSquare = pce == 5 ? 56 : 64;
+        int startSquare = pce == 5 ? 24 : 0;
+        int endSquare = pce == 5 ? 56 : 64;
         for (int sq = startSquare; sq < endSquare; sq++)
         {
             mgAvg += params.data.psqtMG[pce * 64 + sq];
