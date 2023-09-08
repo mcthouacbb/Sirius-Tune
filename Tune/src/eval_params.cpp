@@ -58,8 +58,8 @@ void printParams(const EvalParams& params, std::ostream& os)
         os << "\t\t},\n";
     }
     os << "\t},\n";
-    os << "\t{" << data.tempoMG << ' ' << data.tempoEG << "}\n";
-    os << "\t{" << data.bishopPairMG << ' ' << data.bishopPairEG << "}\n";
+    os << "\t{" << data.tempoMG << ", " << data.tempoEG << "}\n";
+    os << "\t{" << data.bishopPairMG << ", " << data.bishopPairEG << "}\n";
     os << "}";
     os << std::endl;
 }
