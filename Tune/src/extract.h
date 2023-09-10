@@ -5,4 +5,4 @@
 
 void extractMaterial(const EvalParams& params);
 void normBytes(EvalParams& params, std::array<std::array<int, 6>, 2>& material);
-std::vector<uint128_t> compressParams(const EvalParams& params, const std::array<std::array<int, 6>, 2>& material);
+std::vector<uint128_t> compressPsts(const EvalParams& params, const std::array<std::array<int, 6>, 2>& material);

@@ -1,8 +1,9 @@
 #include "extract.h"
+#include <cassert>
 
 void extractMaterial(const EvalParams& params)
 {
-    std::array<std::array<int, 2>, 6> material;
+    std::array<std::array<int, 6>, 2> material = {};
     for (int pce = 1; pce < 6; pce++)
     {
         int mgAvg = 0;
@@ -43,9 +44,43 @@ void extractMaterial(const EvalParams& params)
     printParams(EvalParams(data), std::cout);
 }
 
-std::vector<uint128_t> compressParams(const EvalParams& params, const std::array<std::array<int, 6>, 2>& material)
+std::vector<uint128_t> compressPsts(const EvalParams& params, const std::array<std::array<int, 6>, 2>& material)
 {
+    EvalParams flipped = {};
+    for (int i = 0; i < 6; i++)
+    {
+        for (int sq = 0; sq < 64; sq++)
+        {
+            flipped.data.psqtMG[i * 64 + sq] = params.data.psqtMG[(5 - i) * 64 + sq];
+            flipped.data.psqtEG[i * 64 + sq] = params.data.psqtEG[(5 - i) * 64 + sq];
+        }
+    }
+    printParams(flipped, std::cout);
+    std::vector<uint128_t> compressed = {};
+    for (int i = 0; i < 384; i += 12)
+    {
+        uint128_t x = 0;
+        for (int j = i + 11; j >= i; j--)
+        {
+            assert(flipped.data.psqtMG[j] <= 255 && flipped.data.psqtMG[j] >= 0 && "Parameter is outside byte range");
+            x <<= 8;
+            x |= (uint8_t)flipped.data.psqtMG[j];
+        }
+        compressed.push_back(x);
+    }
 
+    for (int i = 0; i < 384; i += 12)
+    {
+        uint128_t x = 0;
+        for (int j = i + 11; j >= i; j--)
+        {
+            assert(flipped.data.psqtEG[j] <= 255 && flipped.data.psqtEG[j] >= 0 && "Parameter is outside byte range");
+            x <<= 8;
+            x |= (uint8_t)flipped.data.psqtEG[j];
+        }
+        compressed.push_back(x);
+    }
+    return compressed;
 }
 
 void normBytes(EvalParams& params, std::array<std::array<int, 6>, 2>& material)

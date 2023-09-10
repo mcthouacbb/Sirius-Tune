@@ -1,5 +1,5 @@
 #include "pos.h"
-#include "chess.hpp"
+#include "chess/chess.hpp"
 
 #include <stdexcept>
 
@@ -114,13 +114,13 @@ std::vector<Position> getPositions(const std::vector<EpdPos>& epds)
 
 			chess::PieceType type = chess::utils::typeOfPiece(pce);
 			chess::Color color = chess::Board::color(pce);
-            
+
 			pos.phase -= getPhase(type);
 			int psqtIdx = pos.psqtCount[getColorNum(color)]++;
 			pos.psqtIndices[getColorNum(color)][psqtIdx] = 64 * getPieceNum(type) - 64 + (sq ^ (color == chess::Color::WHITE ? 0b111000 : 0));
 		}
 
-	
+
         uint64_t whiteBishops = board.pieces(chess::PieceType::BISHOP, chess::Color::WHITE);
 	uint64_t blackBishops = board.pieces(chess::PieceType::BISHOP, chess::Color::BLACK);
 	if ((whiteBishops & LIGHT_SQUARES) != 0 && (whiteBishops & DARK_SQUARES) != 0)
