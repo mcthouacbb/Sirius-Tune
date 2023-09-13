@@ -89,97 +89,72 @@ void normBytes(EvalParams& params, std::array<std::array<int, 6>, 2>& material)
 
     material = {};
 
+    int maxRange = 0;
     for (int i = 0; i < 6; i++)
     {
-        int mgPsqtSum = 0;
-        int egPsqtSum = 0;
-        for (int j = 0; j < 64; j++)
+        int mgPsqtMin = 100000;
+        int mgPsqtMax = -100000;
+        int egPsqtMin = 100000;
+        int egPsqtMax = -100000;
+        int startSquare = i == 5 ? 8 : 0;
+        int endSquare = i == 5 ? 56 : 64;
+        for (int j = startSquare; j < endSquare; j++)
         {
-            mgPsqtSum += data.psqtMG[i * 64 + j];
-            egPsqtSum += data.psqtEG[i * 64 + j];
+            mgPsqtMin = std::min(mgPsqtMin, data.psqtMG[i * 64 + j]);
+            mgPsqtMax = std::max(mgPsqtMax, data.psqtMG[i * 64 + j]);
+            egPsqtMin = std::min(egPsqtMin, data.psqtEG[i * 64 + j]);
+            egPsqtMax = std::max(egPsqtMax, data.psqtEG[i * 64 + j]);
         }
 
-        while (mgPsqtSum > 32)
+        maxRange = std::max(std::max(maxRange, mgPsqtMax - mgPsqtMin), egPsqtMax - egPsqtMin);
+
+        while (mgPsqtMin > 0)
         {
-            mgPsqtSum -= 64;
-            for (int j = 0; j < 64; j++)
+            mgPsqtMin -= 1;
+            for (int j = startSquare; j < endSquare; j++)
                 data.psqtMG[i * 64 + j] -= 1;
             if (i != 0)
                 material[0][i] += 1;
         }
-        while (mgPsqtSum <= -32)
+        while (mgPsqtMin < 0)
         {
-            mgPsqtSum += 64;
-            for (int j = 0; j < 64; j++)
+            mgPsqtMin += 1;
+            for (int j = startSquare; j < endSquare; j++)
                 data.psqtMG[i * 64 + j] += 1;
             if (i != 0)
                 material[0][i] -= 1;
         }
 
-        while (egPsqtSum > 32)
+        while (egPsqtMin > 0)
         {
-            egPsqtSum -= 64;
-            for (int j = 0; j < 64; j++)
+            egPsqtMin -= 1;
+            for (int j = startSquare; j < endSquare; j++)
                 data.psqtEG[i * 64 + j] -= 1;
             if (i != 0)
                 material[1][i] += 1;
         }
-        while (egPsqtSum <= -32)
+        while (egPsqtMin < 0)
         {
-            egPsqtSum += 64;
-            for (int j = 0; j < 64; j++)
+            egPsqtMin += 1;
+            for (int j = startSquare; j < endSquare; j++)
                 data.psqtEG[i * 64 + j] += 1;
             if (i != 0)
                 material[1][i] -= 1;
         }
     }
 
-    int min = INT_MAX;
-    int max = INT_MIN;
-    for (int* p = reinterpret_cast<int*>(data.psqtMG); p != params.params + NUM_PARAMS; p++)
+    if (maxRange > 255)
     {
-        if (*p > max)
-            max = *p;
-        if (*p < min)
-            min = *p;
-    }
-
-    int range = max - min;
-    std::cout << "Mult Factor: " << 255 << " / " << range << std::endl;
-
-    int diff = 0;
-    // too lazy to figure out the mathematical approach without loops
-    while (min < 0)
-    {
-        diff++;
-        min++;
-        max++;
-    }
-    while (min > 0)
-    {
-        diff--;
-        min--;
-        max--;
-    }
-
-    std::cout << "New min: " << min << " New max: " << max << " diff: " << diff << std::endl;
-
-    for (int i = 1; i < 6; i++)
-    {
-        material[0][i] -= diff;
-        material[0][i] = static_cast<int>(std::round(material[0][i] * 255.0 / range));
-        material[1][i] -= diff;
-        material[1][i] = static_cast<int>(std::round(material[1][i] * 255.0 / range));
-    }
-
-    for (int i = 0; i < 6; i++)
-    {
-        for (int j = 0; j < 64; j++)
+        int mul = 255;
+        int div = maxRange;
+        for (int i = 0; i < 6; i++)
         {
-            data.psqtMG[i * 64 + j] += diff;
-            data.psqtMG[i * 64 + j] = static_cast<int>(std::round(data.psqtMG[i * 64 + j] * 255.0 / range));
-            data.psqtEG[i * 64 + j] += diff;
-            data.psqtEG[i * 64 + j] = static_cast<int>(std::round(data.psqtEG[i * 64 + j] * 255.0 / range));
+            material[0][i] = material[0][i] * mul / div;
+            material[1][i] = material[1][i] * mul / div;
+        }
+        for (int i = 0; i < NUM_PARAMS; i++)
+        {
+            params.params[i] = params.params[i] * mul / div;
         }
     }
 
