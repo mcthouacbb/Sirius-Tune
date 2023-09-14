@@ -58,8 +58,7 @@ void printParams(const EvalParams& params, std::ostream& os)
         os << "\t\t},\n";
     }
     os << "\t},\n";
-    os << "\t{" << data.tempoMG << ", " << data.tempoEG << "}\n";
-    os << "\t{" << data.bishopPairMG << ", " << data.bishopPairEG << "}\n";
+    os << "\t{" << data.bishopPairMG << ' ' << data.bishopPairEG << "}\n";
     os << "}";
     os << std::endl;
 }
@@ -88,8 +87,6 @@ int evaluate(const Position& position, const EvalParams& params)
 
     int mg = evalMG[0] - evalMG[1];
     int eg = evalEG[0] - evalEG[1];
-    mg += position.isWtm ? data.tempoMG : -data.tempoMG;
-    eg += position.isWtm ? data.tempoEG : -data.tempoEG;
     
     return (mg * (24 - position.phase) + eg * position.phase) / 24;
 }

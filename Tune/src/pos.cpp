@@ -122,13 +122,11 @@ std::vector<Position> getPositions(const std::vector<EpdPos>& epds)
 
 
         uint64_t whiteBishops = board.pieces(chess::PieceType::BISHOP, chess::Color::WHITE);
-	uint64_t blackBishops = board.pieces(chess::PieceType::BISHOP, chess::Color::BLACK);
-	if ((whiteBishops & LIGHT_SQUARES) != 0 && (whiteBishops & DARK_SQUARES) != 0)
+        uint64_t blackBishops = board.pieces(chess::PieceType::BISHOP, chess::Color::BLACK);
+        if ((whiteBishops & LIGHT_SQUARES) != 0 && (whiteBishops & DARK_SQUARES) != 0)
             pos.hasBishopPair[0] = true;
         if ((blackBishops & LIGHT_SQUARES) != 0 && (blackBishops & DARK_SQUARES) != 0)
             pos.hasBishopPair[1] = true;
-
-        pos.isWtm = board.sideToMove() == chess::Color::WHITE;
 
 		positions.push_back(pos);
 	}
