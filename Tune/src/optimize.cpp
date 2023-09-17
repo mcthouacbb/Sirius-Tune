@@ -1,22 +1,5 @@
 #include "optimize.h"
 
-#include <unordered_map>
-
-std::unordered_map<int, int> deltaToIdx = {
-	{-5, 0},
-	{-1, 1},
-	{1, 2},
-	{5, 3}
-};
-
-int deltaOrders[5][4] = {
-	{-5, -1, 5, 1},
-	{-1, -5, 5, 1},
-	{1, 5, -5, -1},
-	{5, 1, -5, -1},
-	{5, -5, 1, -1}
-};
-
 double computeKValue(double kValue, std::vector<ErrorThread>& threads, const EvalParams& initial, const std::vector<Position>& positions)
 {
 	constexpr double delta = 1e-5;
@@ -37,22 +20,32 @@ double computeKValue(double kValue, std::vector<ErrorThread>& threads, const Eva
 
 EvalParams localSearch(std::vector<ErrorThread>& threads, double kValue, const EvalParams& initial, const std::vector<Position>& positions, std::ofstream& outFile)
 {
+	constexpr int DELTAS[] = {
+		30, 12, 5, 2, 1
+	};
+	constexpr int DELTA_CHANGE_MARGINS[] = {
+		1, 1, 2, 4, 0
+	};
 	double bestError = error(positions, initial, kValue, threads);
 	EvalParams bestParams = initial;
-	bool improved = true;
 	int it = 1;
-	while (improved)
+
+	int paramDeltaIndices[NUM_PARAMS] = {};
+
+	int currDeltaIdx = 0;
+	int numImproved;
+	do
 	{
-		improved = false;
+		numImproved = 0;
 		for (uint32_t i = 0; i < NUM_PARAMS; i++)
 		{
-			bool improvedParam = false;
-			int prevIdx = 4;
+			int improvedCount = 0;
+			int paramDeltaIdx = paramDeltaIndices[i];
 			for (;;)
 			{
-				for (int j = 0; j < 4; j++)
+				for (int j = 0; j < 2; j++)
 				{
-					int delta = deltaOrders[prevIdx][j];
+					int delta = DELTAS[paramDeltaIdx] * (j == 0 ? 1 : -1);
 					EvalParams newParams = bestParams;
 					newParams.params[i] += delta;
 					double newError = error(positions, newParams, kValue, threads);
@@ -61,8 +54,7 @@ EvalParams localSearch(std::vector<ErrorThread>& threads, double kValue, const E
 					{
 						bestError = newError;
 						bestParams = newParams;
-						improved = true;
-						prevIdx = deltaToIdx.at(delta);
+						improvedCount++;
 						goto improved;
 					}
 					newParams.params[i] -= delta;
@@ -71,14 +63,24 @@ EvalParams localSearch(std::vector<ErrorThread>& threads, double kValue, const E
 			improved:
 				std::cout << "Improved" << std::endl;
 			}
+			if (improvedCount > 0)
+				numImproved++;
+			if (improvedCount < DELTA_CHANGE_MARGINS[paramDeltaIdx])
+			{
+				std::cout << "Decreasing delta" << std::endl;
+				paramDeltaIndices[i]++;
+			}
 		}
 		std::cout << "Iteration: " << it << std::endl;
 		outFile << "Iteration: " << it++ << std::endl;
 		std::cout << "Error: " << bestError << std::endl;
 		outFile << "Error: " << bestError << std::endl;
+		std::cout << "Num improved: " << numImproved << std::endl;
+		outFile << "Num improved: " << numImproved << std::endl;
 		printParams(bestParams, std::cout);
 		printParams(bestParams, outFile);
 	}
+	while (numImproved > 0);
 	return bestParams;
 }
 
