@@ -147,6 +147,7 @@ void normBytes(EvalParams& params, std::array<std::array<int, 6>, 2>& material)
     {
         int mul = 255;
         int div = maxRange;
+        std::cout << "Mul Factor: " << mul << '/' << div << std::endl;
         for (int i = 0; i < 6; i++)
         {
             material[0][i] = material[0][i] * mul / div;
