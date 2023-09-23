@@ -14,6 +14,7 @@ struct Position
 {
 	int psqtIndices[2][16];
 	int psqtCount[2];
+	int doubledPawns[2];
     bool hasBishopPair[2];
 	int phase;
 	double result;
