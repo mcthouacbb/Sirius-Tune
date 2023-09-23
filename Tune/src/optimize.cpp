@@ -21,31 +21,56 @@ double computeKValue(double kValue, std::vector<ErrorThread>& threads, const Eva
 EvalParams localSearch(std::vector<ErrorThread>& threads, double kValue, const EvalParams& initial, const std::vector<Position>& positions, std::ofstream& outFile)
 {
 	constexpr int DELTAS[] = {
-		30, 12, 5, 2, 1
+		12, 5, 2, 1
 	};
 	constexpr int DELTA_CHANGE_MARGINS[] = {
-		1, 1, 2, 4, 0
+		1, 2, 4, 0
 	};
+
+	int minImprovedIdx = 0;
+
+	constexpr int MIN_IMPROVED_DIST[] = {
+		2, 4, 7, 20, 10000
+	};
+
+	constexpr int MIN_IMPROVED_DIST_MARGINS[] = {
+		25, 25, 25, 25, 0
+	};
+
 	double bestError = error(positions, initial, kValue, threads);
 	EvalParams bestParams = initial;
 	int it = 1;
 
-	int paramDeltaIndices[NUM_PARAMS] = {};
+	struct ParamInfo
+	{
+		int deltaIdx;
+		int lastImprovedIt;
+	} paramsInfo[NUM_PARAMS] = {};
 
-	int currDeltaIdx = 0;
 	int numImproved;
+	int numLargeDelta;
 	do
 	{
 		numImproved = 0;
+		numLargeDelta = 0;
+
+		int minImprovedDist = MIN_IMPROVED_DIST[minImprovedIdx];
 		for (uint32_t i = 0; i < NUM_PARAMS; i++)
 		{
 			int improvedCount = 0;
-			int paramDeltaIdx = paramDeltaIndices[i];
+			auto& paramInfo = paramsInfo[i];
+			if (paramInfo.deltaIdx != std::size(DELTAS) - 1)
+				numLargeDelta++;
+			if (paramInfo.lastImprovedIt < it - minImprovedDist)
+			{
+				std::cout << "Skipping, not improved in a while " << std::endl;
+				continue;
+			}
 			for (;;)
 			{
 				for (int j = 0; j < 2; j++)
 				{
-					int delta = DELTAS[paramDeltaIdx] * (j == 0 ? 1 : -1);
+					int delta = DELTAS[paramInfo.deltaIdx] * (j == 0 ? 1 : -1);
 					EvalParams newParams = bestParams;
 					newParams.params[i] += delta;
 					double newError = error(positions, newParams, kValue, threads);
@@ -64,23 +89,33 @@ EvalParams localSearch(std::vector<ErrorThread>& threads, double kValue, const E
 				std::cout << "Improved" << std::endl;
 			}
 			if (improvedCount > 0)
+			{
+				paramInfo.lastImprovedIt = it;
 				numImproved++;
-			if (improvedCount < DELTA_CHANGE_MARGINS[paramDeltaIdx])
+			}
+			if (improvedCount < DELTA_CHANGE_MARGINS[paramInfo.deltaIdx])
 			{
 				std::cout << "Decreasing delta" << std::endl;
-				paramDeltaIndices[i]++;
+				paramInfo.deltaIdx++;
 			}
 		}
+
+		if (numImproved < MIN_IMPROVED_DIST_MARGINS[minImprovedIdx])
+			minImprovedIdx++;
+
 		std::cout << "Iteration: " << it << std::endl;
 		outFile << "Iteration: " << it++ << std::endl;
 		std::cout << "Error: " << bestError << std::endl;
 		outFile << "Error: " << bestError << std::endl;
 		std::cout << "Num improved: " << numImproved << std::endl;
 		outFile << "Num improved: " << numImproved << std::endl;
+		std::cout << "Num large delta: " << numLargeDelta << std::endl;
+		outFile << "Num large delta: " << numLargeDelta << std::endl;
 		printParams(bestParams, std::cout);
 		printParams(bestParams, outFile);
 	}
-	while (numImproved > 0);
+	while (numImproved > 0 || numLargeDelta > 0);
+
 	return bestParams;
 }
 

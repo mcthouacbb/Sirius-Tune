@@ -120,6 +120,17 @@ std::vector<Position> getPositions(const std::vector<EpdPos>& epds)
 			pos.psqtIndices[getColorNum(color)][psqtIdx] = 64 * getPieceNum(type) - 64 + (sq ^ (color == chess::Color::WHITE ? 0b111000 : 0));
 		}
 
+		for (int color = 0; color < 2; color++)
+		{
+			constexpr uint64_t FILE_A = 0x0101010101010101ull;
+			uint64_t pawns = board.pieces(chess::PieceType::PAWN, color == 0 ? chess::Color::WHITE : chess::Color::BLACK);
+			for (int file = 0; file < 8; file++)
+			{
+				uint64_t fileBB = FILE_A << (file);
+				uint64_t filePawns = pawns & fileBB;
+				pos.doubledPawns[color] += std::max(0, popcount(filePawns) - 1);
+			}
+		}
 
         uint64_t whiteBishops = board.pieces(chess::PieceType::BISHOP, chess::Color::WHITE);
         uint64_t blackBishops = board.pieces(chess::PieceType::BISHOP, chess::Color::BLACK);

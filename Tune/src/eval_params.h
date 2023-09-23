@@ -10,6 +10,8 @@ struct EvalData
     int psqtEG[6 * 64];
     int bishopPairMG;
     int bishopPairEG;
+    int doubledPawnMG;
+    int doubledPawnEG;
 };
 
 constexpr size_t NUM_PARAMS = sizeof(EvalData) / sizeof(int);

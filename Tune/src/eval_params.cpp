@@ -59,6 +59,7 @@ void printParams(const EvalParams& params, std::ostream& os)
     }
     os << "\t},\n";
     os << "\t{" << data.bishopPairMG << ' ' << data.bishopPairEG << "}\n";
+    os << "\t{" << data.doubledPawnMG << ' ' << data.doubledPawnEG << "}\n";
     os << "}";
     os << std::endl;
 }
@@ -83,10 +84,13 @@ int evaluate(const Position& position, const EvalParams& params)
             evalMG[col] += params.data.bishopPairMG;
             evalEG[col] += params.data.bishopPairEG;
         }
+
+        evalMG[col] -= params.data.doubledPawnMG * position.doubledPawns[col];
+        evalEG[col] -= params.data.doubledPawnEG * position.doubledPawns[col];
     }
 
     int mg = evalMG[0] - evalMG[1];
     int eg = evalEG[0] - evalEG[1];
-    
+
     return (mg * (24 - position.phase) + eg * position.phase) / 24;
 }
