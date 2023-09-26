@@ -55,9 +55,25 @@ std::vector<uint128_t> compressPsts(const EvalParams& params, const std::array<s
             flipped.data.psqtEG[i * 64 + sq] = params.data.psqtEG[(5 - i) * 64 + sq];
         }
     }
+    for (int i = 768; i < NUM_PARAMS; i++)
+    {
+        flipped.params[i] = params.params[i];
+    }
     printParams(flipped, std::cout);
     std::vector<uint128_t> compressed = {};
-    for (int i = 0; i < 384; i += 12)
+    for (int sq = 0; sq < 64; sq++)
+    {
+        uint128_t x = 0;
+        for (int pce = 6; pce-- > 0;)
+        {
+            x <<= 8;
+            x |= (uint8_t)flipped.data.psqtEG[pce * 64 + sq];
+            x <<= 8;
+            x |= (uint8_t)flipped.data.psqtMG[pce * 64 + sq];
+        }
+        compressed.push_back(x);
+    }
+    /*for (int i = 0; i < 384; i += 12)
     {
         uint128_t x = 0;
         for (int j = i + 11; j >= i; j--)
@@ -79,7 +95,7 @@ std::vector<uint128_t> compressPsts(const EvalParams& params, const std::array<s
             x |= (uint8_t)flipped.data.psqtEG[j];
         }
         compressed.push_back(x);
-    }
+    }*/
     return compressed;
 }
 
