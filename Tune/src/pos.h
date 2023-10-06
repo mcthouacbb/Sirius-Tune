@@ -12,10 +12,9 @@ struct EpdPos
 
 struct Position
 {
-	int psqtIndices[2][16];
-	int psqtCount[2];
-    bool hasBishopPair[2];
-    bool isWtm;
+	int pieceTypes[2][16];
+    int pieceSquares[2][16];
+	int pieceCount[2];
 	int phase;
 	double result;
 };

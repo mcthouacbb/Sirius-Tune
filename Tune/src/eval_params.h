@@ -6,12 +6,12 @@
 
 struct EvalData
 {
-    int psqtMG[6 * 64];
-    int psqtEG[6 * 64];
-    int tempoMG;
-    int tempoEG;
-    int bishopPairMG;
-    int bishopPairEG;
+    int materialMG[6];
+    int materialEG[6];
+    int fileMG[6 * 8];
+    int fileEG[6 * 8];
+    int rankMG[6 * 8];
+    int rankEG[6 * 8];
 };
 
 constexpr size_t NUM_PARAMS = sizeof(EvalData) / sizeof(int);

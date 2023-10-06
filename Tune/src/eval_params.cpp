@@ -16,50 +16,71 @@ void printParams(const EvalParams& params, std::ostream& os)
 {
     const EvalData& data = params.data;
     os << "{\n";
-
+    
+    os << "\t{";
+    for (int piece = 0; piece < 6; piece++)
+        os << data.materialMG[piece] << ", ";
+    os << "}\n\t{";
+    for (int piece = 0; piece < 6; piece++)
+        os << data.materialEG[piece] << ", ";
+    os << "}\n";
+        
     os << "\t{\n";
-    for (int i = 0; i < 6; i++)
+    for (int piece = 0; piece < 6; piece++)
     {
-        os << "\t\t{\n";
-        for (int y = 0; y < 8; y++)
+        os << "\t\t{";
+        for (int file = 0; file < 8; file++)
         {
-            os << "\t\t\t";
-            for (int x = 0; x < 8; x++)
-            {
-                for (int k = 0; k < 4 - numDigits(data.psqtMG[i * 64 + y * 8 + x]); k++)
-                {
-                    os << ' ';
-                }
-                os << data.psqtMG[i * 64 + y * 8 + x] << ", ";
-            }
-            os << '\n';
+            for (int k = 0; k < 4 - numDigits(data.fileMG[piece * 8 + file]); k++)
+                os << ' ';
+            os << data.fileMG[piece * 8 + file] << ", ";
         }
-        os << "\t\t},\n";
+        os << "},\n";
     }
     os << "\t},\n";
 
     os << "\t{\n";
-    for (int i = 0; i < 6; i++)
+    for (int piece = 0; piece < 6; piece++)
     {
-        os << "\t\t{\n";
-        for (int y = 0; y < 8; y++)
+        os << "\t\t{";
+        for (int file = 0; file < 8; file++)
         {
-            os << "\t\t\t";
-            for (int x = 0; x < 8; x++)
-            {
-                for (int k = 0; k < 4 - numDigits(data.psqtEG[i * 64 + y * 8 + x]); k++)
-                {
-                    os << ' ';
-                }
-                os << data.psqtEG[i * 64 + y * 8 + x] << ", ";
-            }
-            os << '\n';
+            for (int k = 0; k < 4 - numDigits(data.fileEG[piece * 8 + file]); k++)
+                os << ' ';
+            os << data.fileEG[piece * 8 + file] << ", ";
         }
-        os << "\t\t},\n";
+        os << "},\n";
     }
     os << "\t},\n";
-    os << "\t{" << data.tempoMG << ", " << data.tempoEG << "}\n";
-    os << "\t{" << data.bishopPairMG << ", " << data.bishopPairEG << "}\n";
+    
+    os << "\t{\n";
+    for (int piece = 0; piece < 6; piece++)
+    {
+        os << "\t\t{";
+        for (int rank = 0; rank < 8; rank++)
+        {
+            for (int k = 0; k < 4 - numDigits(data.rankMG[piece * 8 + rank]); k++)
+                os << ' ';
+            os << data.rankMG[piece * 8 + rank] << ", ";
+        }
+        os << "},\n";
+    }
+    os << "\t},\n";
+    
+    os << "\t{\n";
+    for (int piece = 0; piece < 6; piece++)
+    {
+        os << "\t\t{";
+        for (int rank = 0; rank < 8; rank++)
+        {
+            for (int k = 0; k < 4 - numDigits(data.rankEG[piece * 8 + rank]); k++)
+                os << ' ';
+            os << data.rankEG[piece * 8 + rank] << ", ";
+        }
+        os << "},\n";
+    }
+    os << "\t},\n";
+    
     os << "}";
     os << std::endl;
 }
@@ -73,23 +94,17 @@ int evaluate(const Position& position, const EvalParams& params)
 
     for (int col = 0; col < 2; col++)
     {
-        for (int i = 0; i < position.psqtCount[col]; i++)
+        for (int i = 0; i < position.pieceCount[col]; i++)
         {
-            evalMG[col] += params.data.psqtMG[position.psqtIndices[col][i]];
-            evalEG[col] += params.data.psqtEG[position.psqtIndices[col][i]];
-        }
-
-        if (position.hasBishopPair[col])
-        {
-            evalMG[col] += params.data.bishopPairMG;
-            evalEG[col] += params.data.bishopPairEG;
+            int type = position.pieceTypes[col][i];
+            int sq = position.pieceSquares[col][i];
+            evalMG[col] += params.data.materialMG[type] + params.data.fileMG[type * 8 + sq % 8] + params.data.rankMG[type * 8 + sq / 8];
+            evalEG[col] += params.data.materialEG[type] + params.data.fileEG[type * 8 + sq % 8] + params.data.rankEG[type * 8 + sq / 8];
         }
     }
 
     int mg = evalMG[0] - evalMG[1];
     int eg = evalEG[0] - evalEG[1];
-    mg += position.isWtm ? data.tempoMG : -data.tempoMG;
-    eg += position.isWtm ? data.tempoEG : -data.tempoEG;
     
     return (mg * (24 - position.phase) + eg * position.phase) / 24;
 }

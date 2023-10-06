@@ -29,13 +29,13 @@ double computeKValue(double kValue, std::vector<ErrorThread>& threads, const Eva
 		double tuneDown = error(positions, initial, kValue - delta, threads);
 		deviation = (tuneUp - tuneDown) / (2 * delta);
 		std::cout << "kValue: " << kValue << " up: " << tuneUp << " down: " << tuneDown << " deviation: " << deviation << std::endl;
-		kValue -= deviation * 10;
+		kValue -= deviation * 50;
 	}
 
 	return kValue;
 }
 
-EvalParams localSearch(std::vector<ErrorThread>& threads, double kValue, const EvalParams& initial, const std::vector<Position>& positions, std::ofstream& outFile)
+EvalParams localSearch(double kValue, std::vector<ErrorThread>& threads, const EvalParams& initial, const std::vector<Position>& positions, std::ofstream& outFile)
 {
 	double bestError = error(positions, initial, kValue, threads);
 	EvalParams bestParams = initial;

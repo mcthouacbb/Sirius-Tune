@@ -116,20 +116,12 @@ std::vector<Position> getPositions(const std::vector<EpdPos>& epds)
 			chess::Color color = chess::Board::color(pce);
             
 			pos.phase -= getPhase(type);
-			int psqtIdx = pos.psqtCount[getColorNum(color)]++;
-			pos.psqtIndices[getColorNum(color)][psqtIdx] = 64 * getPieceNum(type) - 64 + (sq ^ (color == chess::Color::WHITE ? 0b111000 : 0));
+			int idx = pos.pieceCount[getColorNum(color)]++;
+            pos.pieceTypes[getColorNum(color)][idx] = getPieceNum(type) - 1;
+            pos.pieceSquares[getColorNum(color)][idx] = sq ^ (color == chess::Color::WHITE ? 0b000000 : 0b111000);
+            // std::cout << "Rank: " << pos.rankIndices[getColorNum(color)][idx] << " File: " << pos.fileIndices[getColorNum(color)][idx] << std::endl;
 		}
-
-	
-        uint64_t whiteBishops = board.pieces(chess::PieceType::BISHOP, chess::Color::WHITE);
-	uint64_t blackBishops = board.pieces(chess::PieceType::BISHOP, chess::Color::BLACK);
-	if ((whiteBishops & LIGHT_SQUARES) != 0 && (whiteBishops & DARK_SQUARES) != 0)
-            pos.hasBishopPair[0] = true;
-        if ((blackBishops & LIGHT_SQUARES) != 0 && (blackBishops & DARK_SQUARES) != 0)
-            pos.hasBishopPair[1] = true;
-
-        pos.isWtm = board.sideToMove() == chess::Color::WHITE;
-
+        
 		positions.push_back(pos);
 	}
 

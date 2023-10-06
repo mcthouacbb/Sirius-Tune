@@ -1,4 +1,4 @@
-#include "extract.h"
+/*#include "extract.h"
 
 void extractMaterial(const EvalParams& params)
 {
@@ -42,3 +42,4 @@ void extractMaterial(const EvalParams& params)
 
     printParams(EvalParams(data), std::cout);
 }
+*/
